@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', function () {
+
+
+document.addEventListener('DOMContentLoaded', function () { 
     const toggle = document.getElementById('adBlockToggle');
     const statusText = document.getElementById('status');
 
@@ -9,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function () {
     toggle.checked = isAdBlockActive;
     statusText.textContent = isAdBlockActive ? 'Ad Blocker is ON' : 'Ad Blocker is OFF';
 
+    // Ensure the background and UI states are consistent on load
+    chrome.runtime.sendMessage({ action: isAdBlockActive ? 'enable' : 'disable' });
+
     // Add event listener to the toggle switch
     toggle.addEventListener('change', function () {
         if (toggle.checked) {
@@ -18,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Send a message to background.js to enable blocking
             chrome.runtime.sendMessage({ action: 'enable' }, function(response) {
-                console.log(response.status); // This will help us know if the message was received
+                console.log(response.status);  // Log response for debugging
             });
         } else {
             // Disable the ad blocker
@@ -27,8 +32,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Send a message to background.js to disable blocking
             chrome.runtime.sendMessage({ action: 'disable' }, function(response) {
-                console.log(response.status); // This will help us know if the message was received
+                console.log(response.status);  // Log response for debugging
             });
         }
     });
 });
+
+
+
