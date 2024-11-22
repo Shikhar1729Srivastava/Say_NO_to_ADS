@@ -1,4 +1,11 @@
-let adBlockerEnabled = false;  // Variable to track whether the ad blocker is enabled or not
+
+
+
+
+//changed code is here 
+
+
+let adBlockerEnabled = false;  // Variable to track whether the ad blocker is enabled or not 
 
 const adBlockRules = [
     {
@@ -17,24 +24,27 @@ const adBlockRules = [
 
 // Function to enable ad-blocking rules
 function enableAdBlock() {
-    if (!adBlockerEnabled) {
+    // 🚀 Remove existing rules before adding new ones
+    chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: adBlockRules.map(rule => rule.id)  // Remove existing rules
+    }, () => {
+        // After removing, add the rules
         chrome.declarativeNetRequest.updateDynamicRules({
-            addRules: adBlockRules
-        });
-        adBlockerEnabled = true;
-        console.log('Ad Blocker Enabled');
-    }
+            addRules: adBlockRules  // Then add new rules
+        }).catch(error => console.error('Error adding rules:', error));  // Added error handling
+    });
+    adBlockerEnabled = true;
+    console.log('Ad Blocker Enabled');
 }
 
 // Function to disable ad-blocking rules
 function disableAdBlock() {
-    if (adBlockerEnabled) {
-        chrome.declarativeNetRequest.updateDynamicRules({
-            removeRuleIds: adBlockRules.map(rule => rule.id)
-        });
-        adBlockerEnabled = false;
-        console.log('Ad Blocker Disabled');
-    }
+    // 🚀 Remove existing rules when disabling
+    chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: adBlockRules.map(rule => rule.id)  // Remove rules by their IDs
+    }).catch(error => console.error('Error removing rules:', error));  // Added error handling
+    adBlockerEnabled = false;
+    console.log('Ad Blocker Disabled');
 }
 
 // Listen for messages from the popup to enable or disable the ad blocker
@@ -44,5 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     } else if (message.action === 'disable') {
         disableAdBlock();
     }
-    sendResponse({ status: "received" }); // Send a response back to confirm
+    sendResponse({ status: "received" });  // Confirm the message was received
 });
+
+
